@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Minecraft Web Client</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen active">
+            <div class="login-box">
+                <h1>⛏️ Minecraft Web Client</h1>
+                <p class="subtitle">Играйте прямо в браузере</p>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Никнейм</label>
+                        <input type="text" id="username" placeholder="Steve" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="host">IP сервера</label>
+                        <input type="text" id="host" placeholder="mc.example.com" value="localhost" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="port">Порт</label>
+                        <input type="number" id="port" value="25565" min="1" max="65535">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Подключиться</button>
+                </form>
+                
+                <div id="loginError" class="error" style="display:none;"></div>
+            </div>
+        </div>
+        
+        <!-- Game HUD -->
+        <div id="gameHUD" class="hud" style="display:none;">
+            <div class="hud-left">
+                <div class="hud-item">🎮 <span id="hudUsername">Player</span></div>
+                <div class="hud-item">🌍 <span id="hudServer">Server</span></div>
+                <div class="hud-item">📍 X: <span id="posX">0</span></div>
+                <div class="hud-item">📍 Y: <span id="posY">0</span></div>
+                <div class="hud-item">📍 Z: <span id="posZ">0</span></div>
+            </div>
+            
+            <div class="hud-center">
+                <div class="crosshair">+</div>
+            </div>
+            
+            <div class="hud-right">
+                <div class="hud-item">❤️ <span id="health">20</span>/20</div>
+                <div class="hud-item">🍗 <span id="food">20</span>/20</div>
+                <div class="hud-item">⚡ FPS: <span id="fps">0</span></div>
+                <div class="hud-item">📦 Ping: <span id="ping">0</span>ms</div>
+            </div>
+        </div>
+        
+        <!-- Controls Info -->
+        <div id="controlsInfo" class="controls-info" style="display:none;">
+            <div class="controls-box">
+                <h3>⌨️ Управление</h3>
+                <p><strong>W/A/S/D</strong> - Движение</p>
+                <p><strong>Пробел</strong> - Прыжок</p>
+                <p><strong>Shift</strong> - Спринт</p>
+                <p><strong>Мышь</strong> - Вращение камеры</p>
+                <p><strong>ЛКМ</strong> - Разрушить блок</p>
+                <p><strong>ПКМ</strong> - Поставить блок</p>
+                <p><strong>E</strong> - Выход</p>
+                <p><strong>C</strong> - Скрыть/показать это окно</p>
+            </div>
+        </div>
+        
+        <!-- Disconnect Button -->
+        <button id="disconnectBtn" class="btn btn-danger disconnect-btn" style="display:none;">Выход</button>
+        
+        <!-- Connection Status -->
+        <div id="connectionStatus" class="connection-status"></div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

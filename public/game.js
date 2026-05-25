@@ -9,8 +9,8 @@ const config = {
 const gameState = {
     connected: false,
     username: '',
-    host: '',
-    port: 25565,
+    host: 'Respek.aternos.me',
+    port: 58389,
     position: { x: 0, y: 64, z: 0 },
     rotation: { yaw: 0, pitch: 0 },
     health: 20,
@@ -214,20 +214,27 @@ function animate() {
 // WebSocket connection
 function connectToServer() {
     const username = document.getElementById('username').value;
-    const host = document.getElementById('host').value;
-    const port = parseInt(document.getElementById('port').value) || 25565;
     
-    if (!username || !host) {
-        showError('Пожалуйста, заполни все поля');
+    if (!username) {
+        showError('Пожалуйста, введи никнейм');
         return;
     }
     
     gameState.username = username;
-    gameState.host = host;
-    gameState.port = port;
     
+    // Определяем URL для подключения
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    
+    // Если мы на GitHub Pages - подключаемся к Render серверу
+    let wsUrl;
+    if (window.location.hostname.includes('github.io')) {
+        wsUrl = 'wss://minecraft-web-client-1pka.onrender.com';
+    } else {
+        // Если локально - подключаемся к localhost
+        wsUrl = `${protocol}//${window.location.host}`;
+    }
+    
+    console.log('Подключение к:', wsUrl);
     
     gameState.ws = new WebSocket(wsUrl);
     
@@ -235,10 +242,11 @@ function connectToServer() {
         console.log('WebSocket подключен');
         gameState.ws.send(JSON.stringify({
             type: 'connect',
-            host,
-            port,
+            host: gameState.host,
+            port: gameState.port,
             username
         }));
+        showStatus('⏳ Подключение к серверу...');
     };
     
     gameState.ws.onmessage = (event) => {
@@ -248,7 +256,7 @@ function connectToServer() {
     
     gameState.ws.onerror = (error) => {
         console.error('WebSocket ошибка:', error);
-        showError('Ошибка подключения');
+        showError('Ошибка подключения к серверу');
     };
     
     gameState.ws.onclose = () => {
@@ -320,13 +328,14 @@ function showStatus(message) {
     statusDiv.classList.add('active');
     setTimeout(() => {
         statusDiv.classList.remove('active');
-    }, 3000);
+    }, 5000);
 }
 
 // Form submission
 document.getElementById('loginForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    document.getElementById('loginForm').querySelector('button').disabled = true;
+    const btn = document.getElementById('loginForm').querySelector('button');
+    btn.disabled = true;
     connectToServer();
 });
 

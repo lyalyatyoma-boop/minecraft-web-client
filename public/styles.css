@@ -4,23 +4,16 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background: #1a1a1a;
-    color: #fff;
-    overflow: hidden;
-}
-
-html, body {
+html, body, #gameContainer {
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
-#gameContainer {
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
+body {
+    font-family: 'Minecraft', 'Arial', sans-serif;
+    background: #1a1a1a;
+    color: #fff;
 }
 
 #gameCanvas {
@@ -29,7 +22,7 @@ html, body {
     height: 100%;
 }
 
-/* Login Screen */
+/* Screens */
 .screen {
     position: fixed;
     top: 0;
@@ -37,237 +30,553 @@ html, body {
     width: 100%;
     height: 100%;
     display: none;
+    z-index: 1000;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
 }
 
 .screen.active {
     display: flex;
 }
 
-.login-box {
-    background: rgba(0, 0, 0, 0.85);
-    border: 2px solid #4a9d3f;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 0 40px rgba(74, 157, 63, 0.3);
-    min-width: 400px;
-    animation: slideIn 0.5s ease-out;
+/* Menu Background */
+.menu-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a3a1a 0%, #2d5a3d 50%, #1a2a3a 100%);
+    opacity: 0.9;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.login-box h1 {
+.menu-content {
+    position: relative;
+    z-index: 1001;
     text-align: center;
-    margin-bottom: 10px;
-    font-size: 32px;
-    color: #4a9d3f;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Main Menu */
+#mainMenu .title {
+    margin-bottom: 60px;
+}
+
+.minecraft-title {
+    font-size: 80px;
+    font-weight: bold;
+    color: #ff6b35;
+    text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.8), 8px 8px 0 rgba(255, 107, 53, 0.3);
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: 4px;
+    animation: titleBounce 2s infinite;
+}
+
+@keyframes titleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
 .subtitle {
-    text-align: center;
-    margin-bottom: 30px;
+    font-size: 20px;
     color: #aaa;
-    font-size: 14px;
+    margin-top: 10px;
+    letter-spacing: 2px;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 300px;
+}
+
+.menu-btn {
+    padding: 15px 40px;
+    background: linear-gradient(180deg, #5a9d3f 0%, #4a8d2f 100%);
+    border: 3px solid #3a6d1f;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 0 #2a4d1f;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.menu-btn:hover {
+    background: linear-gradient(180deg, #6aad4f 0%, #5a9d3f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #2a4d1f;
+}
+
+.menu-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0 #2a4d1f;
+}
+
+.btn-text {
+    display: block;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Multiplayer Screen */
+#multiplayerScreen .screen-title {
+    font-size: 48px;
+    color: #ff6b35;
+    margin-bottom: 30px;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.8);
+}
+
+.server-list {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #4a9d3f;
+    border-radius: 5px;
+    margin-bottom: 30px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.server-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #4a9d3f;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.server-item:last-child {
+    border-bottom: none;
+}
+
+.server-item:hover {
+    background: rgba(74, 157, 63, 0.1);
+}
+
+.server-item.active {
+    background: rgba(74, 157, 63, 0.3);
+    border-left: 4px solid #7ed321;
+}
+
+.server-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #7ed321;
+}
+
+.server-status {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 5px;
+}
+
+.connect-form {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #4a9d3f;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    text-align: left;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    color: #4a9d3f;
-    font-weight: bold;
     font-size: 14px;
+    color: #7ed321;
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
 .form-group input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #4a9d3f;
-    border-radius: 5px;
+    padding: 10px;
     background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #4a9d3f;
     color: #fff;
     font-size: 16px;
-    transition: all 0.3s;
+    border-radius: 3px;
 }
 
 .form-group input:focus {
     outline: none;
     background: rgba(74, 157, 63, 0.2);
     border-color: #7ed321;
-    box-shadow: 0 0 10px rgba(74, 157, 63, 0.5);
 }
 
-.form-group input::placeholder {
-    color: #666;
+.form-actions {
+    display: flex;
+    gap: 10px;
 }
 
-.btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 5px;
+.form-actions .menu-btn {
+    flex: 1;
+    padding: 12px 20px;
     font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-transform: uppercase;
 }
 
-.btn-primary {
-    width: 100%;
-    background: linear-gradient(135deg, #4a9d3f 0%, #7ed321 100%);
-    color: #000;
+.error-message {
+    color: #ff6b35;
+    background: rgba(255, 107, 53, 0.2);
+    border: 1px solid #ff6b35;
+    padding: 10px;
+    border-radius: 3px;
     margin-top: 10px;
-}
-
-.btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(74, 157, 63, 0.4);
-}
-
-.btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn-danger {
-    background: #e74c3c;
-    color: #fff;
-}
-
-.btn-danger:hover:not(:disabled) {
-    background: #c0392b;
-    transform: translateY(-2px);
-}
-
-.error {
-    margin-top: 20px;
-    padding: 12px;
-    background: rgba(231, 76, 60, 0.2);
-    border: 1px solid #e74c3c;
-    border-radius: 5px;
-    color: #ff6b6b;
     text-align: center;
 }
 
-/* HUD */
-.hud {
+.connect-status {
+    color: #7ed321;
+    background: rgba(126, 211, 33, 0.2);
+    border: 1px solid #7ed321;
+    padding: 10px;
+    border-radius: 3px;
+    margin-top: 10px;
+    text-align: center;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Pause Menu */
+.pause-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
 }
 
-.hud-left, .hud-right {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 15px;
+.pause-content {
+    position: relative;
+    z-index: 1002;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #4a9d3f;
+    padding: 40px;
     border-radius: 5px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    line-height: 1.8;
-    border: 1px solid #4a9d3f;
+    text-align: center;
+}
+
+.pause-title {
+    font-size: 48px;
+    color: #ff6b35;
+    margin-bottom: 30px;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.8);
+}
+
+.pause-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 300px;
+}
+
+/* In-Game HUD */
+.hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    pointer-events: none;
+    z-index: 100;
+    font-family: 'Minecraft', monospace;
+}
+
+.hud.active {
+    display: flex;
+}
+
+/* Top Left Info */
+.hud-top-left {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px;
+    border-radius: 3px;
 }
 
 .hud-item {
-    margin: 5px 0;
-    color: #4a9d3f;
+    font-size: 12px;
+    color: #fff;
+    line-height: 1.5;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8);
 }
 
+.hud-item .label {
+    color: #7ed321;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* Center - Crosshair */
 .hud-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
 }
 
 .crosshair {
-    font-size: 24px;
-    color: rgba(255, 255, 255, 0.5);
-    font-weight: bold;
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
-.disconnect-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 101;
-    pointer-events: auto;
+.crosshair-h,
+.crosshair-v {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
 }
 
-.connection-status {
-    position: fixed;
-    bottom: 20px;
+.crosshair-h {
+    width: 12px;
+    height: 1px;
+    top: 50%;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    padding: 15px 30px;
-    border-radius: 5px;
-    color: #4a9d3f;
-    font-size: 14px;
-    z-index: 100;
-    border: 1px solid #4a9d3f;
-    display: none;
 }
 
-.connection-status.active {
-    display: block;
+.crosshair-v {
+    width: 1px;
+    height: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
-.controls-info {
-    position: fixed;
+.crosshair-dot {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Bottom Right - Hotbar and Health */
+.hud-bottom-right {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.hotbar {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.hotbar-slot {
+    width: 20px;
+    height: 20px;
+    background: rgba(139, 111, 71, 0.5);
+    border: 1px solid #8b6f47;
+    border-radius: 1px;
+    transition: all 0.1s;
+}
+
+.hotbar-slot.active {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 8px rgba(126, 211, 33, 0.5);
+    border-color: #7ed321;
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    margin-bottom: 5px;
+}
+
+.health-bar {
+    width: 100px;
+    height: 10px;
+    background: rgba(50, 50, 50, 0.8);
+    border: 1px solid #333;
+    overflow: hidden;
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff0000, #ffaa00);
+    width: 100%;
+    transition: width 0.3s;
+}
+
+.health-text {
+    font-size: 11px;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+}
+
+.food-bar {
+    width: 100px;
+    height: 8px;
+    background: rgba(50, 50, 50, 0.8);
+    border: 1px solid #333;
+    overflow: hidden;
+    margin-bottom: 3px;
+}
+
+.food-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff0000, #ffaa00);
+    width: 100%;
+    transition: width 0.3s;
+}
+
+.food-text {
+    font-size: 11px;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+    display: flex;
+    gap: 5px;
+}
+
+/* Bottom Left - Server Info */
+.hud-bottom-left {
+    position: absolute;
     bottom: 20px;
     left: 20px;
-    background: rgba(0, 0, 0, 0.85);
-    padding: 20px;
-    border-radius: 5px;
-    border: 1px solid #4a9d3f;
-    font-size: 12px;
-    max-width: 250px;
-    z-index: 100;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px;
+    border-radius: 3px;
 }
 
-.controls-box h3 {
-    color: #4a9d3f;
-    margin-bottom: 10px;
+.server-info {
+    text-align: left;
 }
 
-.controls-box p {
-    margin: 5px 0;
-    color: #aaa;
-}
-
-.controls-box strong {
+.server-name-hud {
+    font-size: 13px;
+    font-weight: bold;
     color: #7ed321;
 }
 
-/* Loading animation */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.player-name-hud {
+    font-size: 12px;
+    color: #fff;
 }
 
-.loading {
-    animation: spin 1s linear infinite;
+.server-ip-hud {
+    font-size: 11px;
+    color: #aaa;
+}
+
+/* Pause Button */
+.pause-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(74, 157, 63, 0.7);
+    border: 2px solid #4a9d3f;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 5px;
+    pointer-events: auto;
+    transition: all 0.2s;
+    z-index: 101;
+}
+
+.pause-btn:hover {
+    background: rgba(74, 157, 63, 0.9);
+    box-shadow: 0 0 10px rgba(74, 157, 63, 0.5);
+}
+
+.pause-btn:active {
+    transform: scale(0.95);
+}
+
+/* Notification */
+.notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #4a9d3f;
+    padding: 15px 25px;
+    border-radius: 3px;
+    color: #7ed321;
+    font-size: 14px;
+    text-align: center;
+    z-index: 102;
+    display: none;
+    animation: slideUp 0.3s ease-out;
+}
+
+.notification.active {
+    display: block;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4a9d3f;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #7ed321;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .minecraft-title {
+        font-size: 50px;
+    }
+
+    .menu-btn {
+        padding: 12px 30px;
+        font-size: 16px;
+    }
+
+    .hud-item {
+        font-size: 10px;
+    }
 }

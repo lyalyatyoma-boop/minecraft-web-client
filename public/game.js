@@ -19,7 +19,8 @@ const gameState = {
     keys: {},
     ws: null,
     lastPingTime: 0,
-    ping: 0
+    ping: 0,
+    paused: false
 };
 
 // Three.js setup
@@ -139,13 +140,11 @@ function setupInput() {
     document.addEventListener('keydown', (e) => {
         gameState.keys[e.key.toLowerCase()] = true;
         
-        if (e.key === 'c' || e.key === 'C') {
-            const controlsInfo = document.getElementById('controlsInfo');
-            controlsInfo.style.display = controlsInfo.style.display === 'none' ? 'block' : 'none';
-        }
-        
-        if (e.key === 'e' || e.key === 'E') {
-            disconnect();
+        // ESC to pause
+        if (e.key === 'Escape') {
+            if (gameState.connected && !gameState.paused) {
+                pauseGame();
+            }
         }
     });
     
@@ -153,18 +152,9 @@ function setupInput() {
         gameState.keys[e.key.toLowerCase()] = false;
     });
     
-    // Mouse movement
-    let yaw = 0, pitch = 0;
-    document.addEventListener('mousemove', (e) => {
-        if (!gameState.connected) return;
-        yaw += e.movementX * 0.003;
-        pitch -= e.movementY * 0.003;
-        pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
-    });
-    
     // Pointer lock
     document.getElementById('gameCanvas').addEventListener('click', () => {
-        if (gameState.connected) {
+        if (gameState.connected && !gameState.paused) {
             document.getElementById('gameCanvas').requestPointerLock = 
                 document.getElementById('gameCanvas').requestPointerLock || 
                 document.getElementById('gameCanvas').mozRequestPointerLock;
@@ -176,7 +166,7 @@ function setupInput() {
 function animate() {
     requestAnimationFrame(animate);
     
-    if (gameState.connected) {
+    if (gameState.connected && !gameState.paused) {
         // Update position
         const moveSpeed = config.movementSpeed;
         if (gameState.keys['w']) gameState.position.z -= moveSpeed;
@@ -211,6 +201,70 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+// UI Functions
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const screen = document.getElementById(screenId);
+    if (screen) screen.classList.add('active');
+}
+
+function hideAllScreens() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+}
+
+function showHUD() {
+    document.getElementById('gameHUD').classList.add('active');
+}
+
+function hideHUD() {
+    document.getElementById('gameHUD').classList.remove('active');
+}
+
+function showNotification(message) {
+    const notif = document.getElementById('serverNotification');
+    document.getElementById('notificationContent').textContent = message;
+    notif.classList.add('active');
+    setTimeout(() => notif.classList.remove('active'), 3000);
+}
+
+function pauseGame() {
+    gameState.paused = true;
+    showScreen('pauseMenu');
+}
+
+function resumeGame() {
+    gameState.paused = false;
+    hideAllScreens();
+    showHUD();
+    document.getElementById('gameCanvas').requestPointerLock();
+}
+
+// Menu Event Listeners
+document.getElementById('playBtn')?.addEventListener('click', () => {
+    showScreen('multiplayerScreen');
+});
+
+document.getElementById('multiplayerBtn')?.addEventListener('click', () => {
+    showScreen('multiplayerScreen');
+});
+
+document.getElementById('backBtn')?.addEventListener('click', () => {
+    showScreen('mainMenu');
+});
+
+document.getElementById('connectBtn')?.addEventListener('click', connectToServer);
+
+document.getElementById('pauseBtn')?.addEventListener('click', pauseGame);
+
+document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
+
+document.getElementById('disconnectPauseBtn')?.addEventListener('click', disconnect);
+
+document.getElementById('quitBtn')?.addEventListener('click', () => {
+    disconnect();
+    showScreen('mainMenu');
+});
+
 // WebSocket connection
 function connectToServer() {
     const username = document.getElementById('username').value;
@@ -222,19 +276,18 @@ function connectToServer() {
     
     gameState.username = username;
     
-    // Определяем URL для подключения
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     
-    // Если мы на GitHub Pages - подключаемся к Render серверу
     let wsUrl;
     if (window.location.hostname.includes('github.io')) {
         wsUrl = 'wss://minecraft-web-client-1pka.onrender.com';
     } else {
-        // Если локально - подключаемся к localhost
         wsUrl = `${protocol}//${window.location.host}`;
     }
     
     console.log('Подключение к:', wsUrl);
+    
+    showStatus('⏳ Подключение к серверу...');
     
     gameState.ws = new WebSocket(wsUrl);
     
@@ -246,7 +299,6 @@ function connectToServer() {
             port: gameState.port,
             username
         }));
-        showStatus('⏳ Подключение к серверу...');
     };
     
     gameState.ws.onmessage = (event) => {
@@ -256,7 +308,8 @@ function connectToServer() {
     
     gameState.ws.onerror = (error) => {
         console.error('WebSocket ошибка:', error);
-        showError('Ошибка подключения к серверу');
+        showError('❌ Ошибка подключения к серверу');
+        showNotification('Ошибка подключения');
     };
     
     gameState.ws.onclose = () => {
@@ -269,13 +322,14 @@ function handleServerMessage(data) {
     switch (data.type) {
         case 'connected':
             gameState.connected = true;
-            document.getElementById('loginScreen').classList.remove('active');
-            document.getElementById('gameHUD').style.display = 'flex';
-            document.getElementById('disconnectBtn').style.display = 'block';
-            document.getElementById('controlsInfo').style.display = 'block';
-            document.getElementById('hudUsername').textContent = gameState.username;
-            document.getElementById('hudServer').textContent = `${gameState.host}:${gameState.port}`;
-            showStatus(`✅ Подключено к ${gameState.host}:${gameState.port}`);
+            hideAllScreens();
+            showHUD();
+            document.getElementById('playerNameHud').textContent = gameState.username;
+            showNotification(`✅ Подключено к ${gameState.host}:${gameState.port}`);
+            
+            // Update health and food
+            updateHealth(20);
+            updateFood(20);
             break;
         
         case 'position':
@@ -285,19 +339,34 @@ function handleServerMessage(data) {
         case 'health':
             gameState.health = data.health;
             gameState.food = data.food;
-            document.getElementById('health').textContent = data.health;
-            document.getElementById('food').textContent = data.food;
+            updateHealth(data.health);
+            updateFood(data.food);
             break;
         
         case 'error':
-            showError(data.message);
+            showError(`❌ ${data.message}`);
+            showNotification(data.message);
             break;
         
         case 'disconnected':
             gameState.connected = false;
-            showStatus(`⚠️ Отключено: ${data.reason}`);
+            hideHUD();
+            showScreen('mainMenu');
+            showNotification(`⚠️ Отключено: ${data.reason}`);
             break;
     }
+}
+
+function updateHealth(health) {
+    const percentage = (health / 20) * 100;
+    document.getElementById('healthFill').style.width = percentage + '%';
+    document.getElementById('healthText').textContent = `❤️ ${health}/20`;
+}
+
+function updateFood(food) {
+    const percentage = (food / 20) * 100;
+    document.getElementById('foodFill').style.width = percentage + '%';
+    document.getElementById('foodText').textContent = `🍗 ${food}/20`;
 }
 
 function disconnect() {
@@ -307,40 +376,30 @@ function disconnect() {
     }
     
     gameState.connected = false;
-    document.getElementById('loginScreen').classList.add('active');
-    document.getElementById('gameHUD').style.display = 'none';
-    document.getElementById('disconnectBtn').style.display = 'none';
-    document.getElementById('controlsInfo').style.display = 'none';
+    gameState.paused = false;
+    hideHUD();
+    hideAllScreens();
+    showScreen('mainMenu');
 }
 
 function showError(message) {
-    const errorDiv = document.getElementById('loginError');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 5000);
+    const errorDiv = document.getElementById('connectError');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
 }
 
 function showStatus(message) {
-    const statusDiv = document.getElementById('connectionStatus');
-    statusDiv.textContent = message;
-    statusDiv.classList.add('active');
-    setTimeout(() => {
-        statusDiv.classList.remove('active');
-    }, 5000);
+    const statusDiv = document.getElementById('connectStatus');
+    if (statusDiv) {
+        statusDiv.textContent = message;
+        statusDiv.style.display = 'block';
+    }
 }
-
-// Form submission
-document.getElementById('loginForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('loginForm').querySelector('button');
-    btn.disabled = true;
-    connectToServer();
-});
-
-// Disconnect button
-document.getElementById('disconnectBtn').addEventListener('click', disconnect);
 
 // Window resize
 window.addEventListener('resize', () => {
@@ -352,4 +411,5 @@ window.addEventListener('resize', () => {
 // Initialize when page loads
 window.addEventListener('load', () => {
     initThreeJS();
+    showScreen('mainMenu');
 });

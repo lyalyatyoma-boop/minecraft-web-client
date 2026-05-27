@@ -213,15 +213,15 @@ function hideAllScreens() {
 }
 
 function showHUD() {
-    document.getElementById('gameHUD').classList.add('active');
+    document.getElementById('hud').style.display = 'block';
 }
 
 function hideHUD() {
-    document.getElementById('gameHUD').classList.remove('active');
+    document.getElementById('hud').style.display = 'none';
 }
 
 function showNotification(message) {
-    const notif = document.getElementById('serverNotification');
+    const notif = document.getElementById('server-notification');
     document.getElementById('notificationContent').textContent = message;
     notif.classList.add('active');
     setTimeout(() => notif.classList.remove('active'), 3000);
@@ -229,7 +229,7 @@ function showNotification(message) {
 
 function pauseGame() {
     gameState.paused = true;
-    showScreen('pauseMenu');
+    showScreen('pause-screen');
 }
 
 function resumeGame() {
@@ -241,15 +241,23 @@ function resumeGame() {
 
 // Menu Event Listeners
 document.getElementById('playBtn')?.addEventListener('click', () => {
-    showScreen('multiplayerScreen');
+    showScreen('play-screen');
 });
 
-document.getElementById('multiplayerBtn')?.addEventListener('click', () => {
-    showScreen('multiplayerScreen');
+document.getElementById('settingsBtn')?.addEventListener('click', () => {
+    showNotification('Settings coming soon!');
+});
+
+document.getElementById('githubBtn')?.addEventListener('click', () => {
+    window.open('https://github.com/OrtimkaOgneniy/minecraft-web-client', '_blank');
+});
+
+document.getElementById('discordBtn')?.addEventListener('click', () => {
+    showNotification('Discord link coming soon!');
 });
 
 document.getElementById('backBtn')?.addEventListener('click', () => {
-    showScreen('mainMenu');
+    showScreen('title-screen');
 });
 
 document.getElementById('connectBtn')?.addEventListener('click', connectToServer);
@@ -258,11 +266,11 @@ document.getElementById('pauseBtn')?.addEventListener('click', pauseGame);
 
 document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
 
-document.getElementById('disconnectPauseBtn')?.addEventListener('click', disconnect);
+document.getElementById('disconnectBtn')?.addEventListener('click', disconnect);
 
 document.getElementById('quitBtn')?.addEventListener('click', () => {
     disconnect();
-    showScreen('mainMenu');
+    showScreen('title-screen');
 });
 
 // WebSocket connection
@@ -351,7 +359,7 @@ function handleServerMessage(data) {
         case 'disconnected':
             gameState.connected = false;
             hideHUD();
-            showScreen('mainMenu');
+            showScreen('title-screen');
             showNotification(`⚠️ Отключено: ${data.reason}`);
             break;
     }
@@ -379,7 +387,7 @@ function disconnect() {
     gameState.paused = false;
     hideHUD();
     hideAllScreens();
-    showScreen('mainMenu');
+    showScreen('title-screen');
 }
 
 function showError(message) {
@@ -411,5 +419,5 @@ window.addEventListener('resize', () => {
 // Initialize when page loads
 window.addEventListener('load', () => {
     initThreeJS();
-    showScreen('mainMenu');
+    showScreen('title-screen');
 });
